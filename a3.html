@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>과제 3 – 캐리커처 (인터랙션)</title>
+<link rel="stylesheet" href="style.css" />
+<script src="libs/p5.min.js"></script>
+</head>
+<body>
+<div class="container page">
+  <h2>과제 3 · 캐리커처 (인터랙션)</h2>
+  <div class="row">
+    <div class="media">
+      <!-- Live p5 -->
+      <div id="sketch3"></div>
+    </div>
+    <pre class="code"><code>// 과제3 소스 (일부 주석 줄바꿈만 보정)
+let cx = 300, cy = 210;
+let fw = 170, fh = 200;
+let bgGray = 255;
+let shirtR=210, shirtG=230, shirtB=255;
+let browLift = 0, mouthCurve = 0, fringeDrop = 0;
+let blinkL = 0, blinkR = 0, blinkDecay = 0.2;
+let pupilXL = 0, pupilYL = 0, pupilXR = 0, pupilYR = 0;
+
+function setup(){ let c=createCanvas(600,400); c.parent('sketch3'); noLoop(); redraw(); }
+function draw(){
+  background(bgGray);
+  fill(245,224,198); rect(cx-32, cy+50, 64, 60, 16);       // neck
+  fill(shirtR,shirtG,shirtB); beginShape(); vertex(90,380); vertex(510,380); vertex(510,300); vertex(470,270); vertex(380,260); vertex(300,300); vertex(220,260); vertex(130,270); vertex(90,300); endShape(CLOSE);
+  fill(246,228,205); ellipse(cx-84, cy-36, 26, 40); ellipse(cx+84, cy-36, 26, 40);
+  fill(246,228,205); stroke(120,100,90); strokeWeight(1.5); ellipse(cx, cy-40, fw, fh); noStroke();
+  fill(40); arc(cx, cy-96, fw+14, 130, PI, 0); beginShape(); vertex(cx-85, cy-90+fringeDrop); bezierVertex(cx-50, cy-150+fringeDrop, cx+50, cy-150+fringeDrop, cx+85, cy-90+fringeDrop); vertex(cx+60, cy-70+fringeDrop); bezierVertex(cx, cy-120+fringeDrop, cx-40, cy-100+fringeDrop, cx-60, cy-70+fringeDrop); endShape(CLOSE);
+  let eyeY=cy-58, eyeW=46, eyeH0=16, eyeHL=max(2, eyeH0*(1.0-blinkL)), eyeHR=max(2, eyeH0*(1.0-blinkR));
+  fill(255); stroke(90); strokeWeight(1.6); ellipse(cx-36, eyeY, eyeW, eyeHL); ellipse(cx+36, eyeY, eyeW, eyeHR); noStroke();
+  const Mx=10, My=6; pupilXL=constrain(pupilXL,-Mx,Mx); pupilYL=constrain(pupilYL,-My,My); pupilXR=constrain(pupilXR,-Mx,Mx); pupilYR=constrain(pupilYR,-My,My);
+  fill(55); circle(cx-36+pupilXL, eyeY+pupilYL, 10); circle(cx+36+pupilXR, eyeY+pupilYR, 10);
+  stroke(40); strokeWeight(4); noFill(); line(cx-68, cy-68-browLift, cx-20, cy-74-browLift); line(cx+20, cy-74-browLift, cx+68, cy-68-browLift); noStroke();
+  stroke(130); strokeWeight(1.6); line(cx, cy-54, cx-4, cy-25); arc(cx, cy-17, 18, 10, 0, PI); noStroke();
+  stroke(120); strokeWeight(1.8); let mx1=cx-18, mx2=cx+18, my=cy+10; beginShape(); vertex(mx1, my); bezierVertex(mx1+12, my+mouthCurve, mx2-12, my+mouthCurve, mx2, my); endShape(); noStroke();
+  fill(40); circle(cx+46, cy+24, 4);
+  if (blinkL>0||blinkR>0){ blinkL=max(0,blinkL-0.2); blinkR=max(0,blinkR-0.2); requestAnimationFrame(()=>redraw()); }
+}
+function mouseMoved(){
+  const exLx=cx-36, exLy=cy-58, exRx=cx+36, exRy=cy-58;
+  let vxL=mouseX-exLx, vyL=mouseY-exLy, mL=sqrt(vxL*vxL+vyL*vyL)||1, sL=min(1,10/mL);
+  pupilXL=vxL*sL; pupilYL=vyL*sL;
+  let vxR=mouseX-exRx, vyR=mouseY-exRy, mR=sqrt(vxR*vxR+vyR*vyR)||1, sR=min(1,10/mR);
+  pupilXR=vxR*sR; pupilYR=vyR*sR; redraw();
+}
+function mousePressed(){ if(mouseX<width/2) blinkL=1; else blinkR=1; redraw(); }
+function keyPressed(){
+  if(key==='1'){ shirtR=210;shirtG=230;shirtB=255; }
+  if(key==='2'){ shirtR=40;shirtG=60;shirtB=110; }
+  if(key==='3'){ shirtR=190;shirtG=245;shirtB=220; }
+  if(key==='b'||key==='B'){ bgGray=(bgGray===255?240:255); }
+  if(keyCode===UP_ARROW) browLift=min(16,browLift+2);
+  if(keyCode===DOWN_ARROW) browLift=max(-16,browLift-2);
+  if(keyCode===RIGHT_ARROW) mouthCurve=min(10,mouthCurve+1.5);
+  if(keyCode===LEFT_ARROW)  mouthCurve=max(-10,mouthCurve-1.5);
+  if(key==='h'||key==='H') fringeDrop=(fringeDrop===0?8:0);
+  if(key==='r'||key==='R'){ bgGray=255; shirtR=210;shirtG=230;shirtB=255; browLift=0; mouthCurve=0; fringeDrop=0; blinkL=0; blinkR=0; pupilXL=pupilYL=pupilXR=pupilYR=0; }
+  redraw();
+}</code></pre>
+  </div>
+  <hr/>
+  <div class="small">조작: 마우스(눈동자), 클릭(깜빡임), 1/2/3(상의색), B(배경), ←/→/↑/↓(표정), H(앞머리), R(리셋)</div>
+  <p><a class="btn" href="index.html">← 메인으로</a></p>
+</div>
+</body>
+</html>
